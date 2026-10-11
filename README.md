@@ -60,6 +60,8 @@ Aplicação web em React e TypeScript para organizar produtos, criadoras IA, cop
 
    Os links de confirmação e recuperação retornam para a origem em que o formulário foi enviado. Se um link expirar, abra a aplicação, informe o e-mail na tela de entrada e use **Enviar novo link de confirmação**. Em **Supabase → Authentication → URL Configuration**, mantenha o Site URL apontando para a URL principal publicada e adicione as origens locais realmente usadas, por exemplo `http://localhost:3000/**`, `http://localhost:5173/**` e `http://127.0.0.1:5173/**`, às Redirect URLs. A URL precisa corresponder à porta em que o app está rodando. No template de confirmação de e-mail, use `{{ .ConfirmationURL }}` no link em vez de codificar `localhost` diretamente.
 
+   Confirmar o e-mail não cria as tabelas do workspace. Antes do primeiro acesso aos dados, aplique uma única vez a migration `supabase/migrations/20261011000000_user_workspaces_and_private_images.sql` pelo Supabase CLI (`npx supabase link --project-ref SEU_PROJECT_REF` e `npx supabase db push`) ou copie o conteúdo do arquivo para o **SQL Editor** do Dashboard e execute. Não execute novamente se a tabela `public.user_workspaces` já existir.
+
 ## Comandos
 
 ```bash

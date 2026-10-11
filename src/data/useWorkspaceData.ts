@@ -10,7 +10,23 @@ import {
 import { publicAsset } from "../utils/assets"
 
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Erro desconhecido."
+  if (error instanceof Error) return error.message
+  if (!error || typeof error !== "object") return "Erro desconhecido."
+
+  const code =
+    "code" in error && typeof error.code === "string" ? error.code : ""
+  const message =
+    "message" in error && typeof error.message === "string" ? error.message : ""
+
+  if (
+    code === "PGRST205" ||
+    message.includes("public.user_workspaces") ||
+    message.includes("user_workspaces")
+  ) {
+    return "A tabela user_workspaces não foi encontrada no Supabase. Aplique a migration supabase/migrations/20261011000000_user_workspaces_and_private_images.sql no projeto e tente novamente."
+  }
+
+  return message || code || "Erro desconhecido."
 }
 
 function imagePaths(data: AppData, userId: string): string[] {
