@@ -13,8 +13,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check"
+    "format": "oxfmt src README.md package.json vite.config.ts index.html tsconfig.json .github/workflows/deploy.yml",
+    "format:check": "oxfmt --check src README.md package.json vite.config.ts index.html tsconfig.json .github/workflows/deploy.yml"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

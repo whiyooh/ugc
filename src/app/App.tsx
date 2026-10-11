@@ -55,19 +55,19 @@ function AppGate() {
   const [previewMode, setPreviewMode] = useState(false)
 
   if (auth.loading) return <LoadingScreen message="Verificando sua sessão..." />
+  if (previewMode) {
+    return (
+      <Workspace
+        key="visual-preview"
+        client={null}
+        userId=""
+        email="Pré-visualização"
+        previewData={previewWorkspace}
+        onExitPreview={() => setPreviewMode(false)}
+      />
+    )
+  }
   if (auth.configurationError) {
-    if (previewMode) {
-      return (
-        <Workspace
-          key="visual-preview"
-          client={null}
-          userId=""
-          email="Pré-visualização"
-          previewData={previewWorkspace}
-          onExitPreview={() => setPreviewMode(false)}
-        />
-      )
-    }
     return (
       <AuthScreen
         client={null}
@@ -97,6 +97,7 @@ function AppGate() {
         configurationError={null}
         recovery={false}
         sessionError={auth.error}
+        onPreview={() => setPreviewMode(true)}
       />
     )
   }

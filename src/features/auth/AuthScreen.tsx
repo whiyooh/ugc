@@ -225,6 +225,11 @@ export function AuthScreen({
                 <button type="button" onClick={() => changeView("recovery")}>
                   Esqueci minha senha
                 </button>
+                {onPreview && (
+                  <button type="button" onClick={onPreview}>
+                    Abrir preview visual
+                  </button>
+                )}
                 <span>
                   Ainda não tem conta?{" "}
                   <button type="button" onClick={() => changeView("signup")}>

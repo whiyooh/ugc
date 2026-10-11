@@ -56,7 +56,7 @@ Aplicação web em React e TypeScript para organizar produtos, criadoras IA, cop
 
    Acesse `http://localhost:5173`. Sem as variáveis Supabase a aplicação mostra uma mensagem explícita de configuração ausente, em vez de simular login ou persistência.
 
-   Para visualizar a interface sem configurar Supabase, use **Abrir preview visual** na tela de configuração. Esse modo usa apenas conteúdo demonstrativo em memória, não autentica, não acessa a nuvem e descarta as alterações ao sair ou recarregar.
+   Para visualizar a interface sem criar uma conta, use **Abrir preview visual** na tela de entrada ou configuração. Esse modo usa apenas conteúdo demonstrativo em memória, não autentica, não acessa a nuvem e descarta as alterações ao sair ou recarregar.
 
 ## Comandos
 
