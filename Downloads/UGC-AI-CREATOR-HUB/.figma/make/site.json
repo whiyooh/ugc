@@ -1,0 +1,10 @@
+{
+  "description": "Manage AI creator products, virtual creators, marketing copies, and video projects with an interactive, design-faithful dashboard for streamlined content creation.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
