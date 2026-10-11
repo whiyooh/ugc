@@ -56,6 +56,8 @@ Aplicação web em React e TypeScript para organizar produtos, criadoras IA, cop
 
    Acesse `http://localhost:5173`. Sem as variáveis Supabase a aplicação mostra uma mensagem explícita de configuração ausente, em vez de simular login ou persistência.
 
+   Para visualizar a interface sem configurar Supabase, use **Abrir preview visual** na tela de configuração. Esse modo usa apenas conteúdo demonstrativo em memória, não autentica, não acessa a nuvem e descarta as alterações ao sair ou recarregar.
+
 ## Comandos
 
 ```bash
@@ -79,13 +81,21 @@ npm run format:check # Confere a formatação
 
 Antes de publicar, valide o isolamento com duas contas: crie registros e envie imagem com a conta A; confirme que a conta B não os vê nem consegue abrir o caminho privado; encerre e retome as sessões em ambos os dispositivos para confirmar a persistência. Não foi possível executar essa verificação real neste ambiente sem credenciais de um projeto Supabase configurado.
 
-## Publicação
+## Publicação no GitHub Pages
 
-1. Aplique todas as migrations ao projeto Supabase de produção.
-2. Configure somente `VITE_SUPABASE_URL` e a chave pública anon/publishable no provedor de build.
-3. Publique o conteúdo de `dist/` em uma hospedagem estática com HTTPS e fallback de rotas SPA, se aplicável.
-4. Inclua a URL HTTPS de produção nas Redirect URLs do Supabase e configure o SMTP de produção.
-5. Confirme que a chave `service_role`/secret não foi configurada no frontend, repositório, logs ou artefatos publicados. Restrinja-a a ambientes confiáveis de servidor caso uma operação administrativa futura realmente necessite dela.
+O repositório `whiyooh/ugc` usa automaticamente o caminho-base `/ugc/` nos builds do GitHub Actions. O `npm run dev` e o `npm run preview` continuam usando `/` e não dependem do GitHub Pages.
+
+1. No projeto Supabase, aplique as migrations e configure Authentication.
+2. No GitHub, abra **Settings → Secrets and variables → Actions → Variables** e crie:
+   - `VITE_SUPABASE_URL`: Project URL mostrada em **Supabase → Project Settings → API**.
+   - `VITE_SUPABASE_ANON_KEY`: chave pública `anon` (ou `publishable`) da mesma página.
+3. Nunca coloque a `service_role`/secret key em Actions Variables, Secrets usados no build do frontend, arquivos `VITE_*` ou no repositório. A chave anon/publishable é pública por definição; o isolamento depende do Auth e das políticas RLS.
+4. Abra **Settings → Pages** do repositório e escolha **GitHub Actions** como source.
+5. Envie alterações para a branch `main` ou execute manualmente o workflow **Deploy to GitHub Pages** em **Actions**. O workflow verifica as variáveis, instala com `npm ci`, compila e publica `dist/`.
+6. Confira o resultado e a URL em **Actions → Deploy to GitHub Pages → deploy → environment**. A publicação só ocorre após o workflow completar com sucesso.
+7. Nas configurações de Auth do Supabase, adicione `https://whiyooh.github.io/ugc/` e `http://localhost:5173/` às Redirect URLs. Ajuste o Site URL conforme a URL de produção em uso.
+
+Para validar localmente o mesmo caminho-base da publicação sem alterar o servidor dev, execute `GITHUB_ACTIONS=true npm run build`; os assets e links de autenticação usarão `/ugc/`.
 
 ## Estrutura
 

@@ -83,6 +83,9 @@ main { max-width: 1500px; margin: 0 auto; padding: 50px 44px 24px; }
 .empty { display: grid; min-height: 240px; place-content: center; gap: 8px; border: 1px dashed #d9d5e5; border-radius: var(--radius); color: var(--muted); text-align: center; }
 .empty strong { color: var(--ink); }
 .storage-warning { margin-bottom: 20px; border: 1px solid #f3dce3; border-radius: 12px; background: #fff7f9; padding: 13px 16px; color: var(--danger); font-size: 12px; line-height: 1.5; }
+.preview-notice { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 20px; border: 1px solid #ded4ff; border-radius: 12px; background: #f6f2ff; padding: 13px 16px; color: var(--purple-dark); font-size: 11px; line-height: 1.5; }
+.preview-notice strong { font-size: 11px; }
+.preview-notice span { color: var(--muted); }
 .save-status { color: var(--muted); font-size: 10px; white-space: nowrap; }
 .save-retry, .logout-button { border: 0; background: none; color: var(--purple); font-size: 11px; cursor: pointer; white-space: nowrap; }
 .user-email { max-width: 180px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
@@ -237,3 +240,4 @@ footer { display: flex; justify-content: space-between; margin-top: 30px; border
   .cloud-loading { text-align: center; }
   .cloud-loading p { margin: 0; color: var(--muted); font-size: 12px; }
   .auth-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .auth-preview-button { margin-top: 14px; }

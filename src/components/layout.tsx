@@ -14,6 +14,7 @@ export function Header({
   onLogout,
   onRetrySave,
   loggingOut,
+  preview,
 }: {
   page: Page
   search: string
@@ -26,6 +27,7 @@ export function Header({
   onLogout: () => void
   onRetrySave: () => void
   loggingOut: boolean
+  preview: boolean
 }) {
   return (
     <header className="topbar">
@@ -45,13 +47,15 @@ export function Header({
           />
         </label>
         <span className="save-status" role="status" aria-live="polite">
-          {saving
-            ? "Salvando na nuvem..."
-            : error
-              ? "Falha ao salvar"
-              : lastSavedAt
-                ? `Salvo às ${new Date(lastSavedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
-                : "Carregando dados"}
+          {preview
+            ? "Preview visual"
+            : saving
+              ? "Salvando na nuvem..."
+              : error
+                ? "Falha ao salvar"
+                : lastSavedAt
+                  ? `Salvo às ${new Date(lastSavedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                  : "Carregando dados"}
         </span>
         {error && (
           <button className="save-retry" onClick={onRetrySave}>
@@ -66,7 +70,7 @@ export function Header({
           onClick={onLogout}
           disabled={loggingOut}
         >
-          {loggingOut ? "Saindo..." : "Sair"}
+          {preview ? "Sair do preview" : loggingOut ? "Saindo..." : "Sair"}
         </button>
       </div>
     </header>
@@ -78,11 +82,13 @@ export function Sidebar({
   setPage,
   open,
   close,
+  preview,
 }: {
   page: Page
   setPage: (page: Page) => void
   open: boolean
   close: () => void
+  preview: boolean
 }) {
   const navigate = (next: Page) => {
     setPage(next)
@@ -126,20 +132,28 @@ export function Sidebar({
         ))}
       </nav>
       <div className="side-note">
-        <Tag tone="purple">Seu fluxo, mais leve</Tag>
+        <Tag tone="purple">
+          {preview ? "Preview visual" : "Seu fluxo, mais leve"}
+        </Tag>
         <strong>
           Da ideia ao vídeo.
           <br />
           Tudo no mesmo lugar.
         </strong>
-        <p>Seu espaço privado para organizar a produção.</p>
+        <p>
+          {preview
+            ? "Dados de demonstração para visualizar a interface."
+            : "Seu espaço privado para organizar a produção."}
+        </p>
       </div>
       <div className="side-meta">
-        <strong>ESPAÇO PRIVADO</strong>
+        <strong>{preview ? "MODO DEMONSTRAÇÃO" : "ESPAÇO PRIVADO"}</strong>
         <span>
-          Dados separados por conta.
+          {preview
+            ? "Alterações não são salvas."
+            : "Dados separados por conta."}
           <br />
-          Você controla o acesso.
+          {preview ? "Use o login para sua conta." : "Você controla o acesso."}
         </span>
         <span>UGC AI YOHS&nbsp;&nbsp;•&nbsp;&nbsp;Português (BR)</span>
       </div>

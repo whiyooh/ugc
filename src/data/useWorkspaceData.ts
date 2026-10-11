@@ -7,6 +7,7 @@ import {
   loadWorkspace,
   saveWorkspace,
 } from "./workspaceRepository"
+import { publicAsset } from "../utils/assets"
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Erro desconhecido."
@@ -29,11 +30,14 @@ function imagePaths(data: AppData, userId: string): string[] {
 }
 
 export function useSignedWorkspaceImages(
-  client: SupabaseClient,
+  client: SupabaseClient | null,
   userId: string,
   data: AppData,
 ) {
-  const paths = useMemo(() => imagePaths(data, userId), [data, userId])
+  const paths = useMemo(
+    () => (client ? imagePaths(data, userId) : []),
+    [client, data, userId],
+  )
   const pathsKey = JSON.stringify(paths)
   const [signedImages, setSignedImages] = useState<Record<string, string>>({})
   const [error, setError] = useState("")
@@ -42,7 +46,7 @@ export function useSignedWorkspaceImages(
     let active = true
     setSignedImages({})
     setError("")
-    if (paths.length === 0) return
+    if (!client || paths.length === 0) return
 
     void client.storage
       .from(WORKSPACE_IMAGE_BUCKET)
@@ -82,16 +86,24 @@ export function useSignedWorkspaceImages(
 
   const resolveImage = useCallback(
     (image: string) =>
-      image.startsWith(`${userId}/`) ? (signedImages[image] ?? "") : image,
-    [signedImages, userId],
+      client && image.startsWith(`${userId}/`)
+        ? (signedImages[image] ?? "")
+        : publicAsset(image),
+    [client, signedImages, userId],
   )
 
   return { resolveImage, imageError: error }
 }
 
-export function useWorkspaceData(client: SupabaseClient, userId: string) {
-  const [data, setData] = useState<AppData>(createEmptyWorkspace)
-  const [loading, setLoading] = useState(true)
+export function useWorkspaceData(
+  client: SupabaseClient | null,
+  userId: string,
+  previewData?: AppData,
+) {
+  const [data, setData] = useState<AppData>(
+    () => previewData ?? createEmptyWorkspace(),
+  )
+  const [loading, setLoading] = useState(Boolean(client))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [loadError, setLoadError] = useState("")
@@ -118,6 +130,14 @@ export function useWorkspaceData(client: SupabaseClient, userId: string) {
 
   useEffect(() => {
     let active = true
+    if (!client) {
+      setData(previewData ?? createEmptyWorkspace())
+      setLoading(false)
+      setReady(true)
+      setLoadError("")
+      setLastSavedAt(null)
+      return
+    }
     setLoading(true)
     setReady(false)
     setLoadError("")
@@ -145,10 +165,10 @@ export function useWorkspaceData(client: SupabaseClient, userId: string) {
     return () => {
       active = false
     }
-  }, [client, loadAttempt, userId])
+  }, [client, loadAttempt, previewData, userId])
 
   useEffect(() => {
-    if (!ready) return
+    if (!client || !ready) return
     let active = true
     const snapshot = data
     setSaving(true)
@@ -190,6 +210,7 @@ export function useWorkspaceData(client: SupabaseClient, userId: string) {
   }, [client, data, ready, saveAttempt, userId])
 
   const flushSave = useCallback(async () => {
+    if (!client) throw new Error("O modo de demonstração não salva dados.")
     if (!ready) throw new Error("Os dados ainda não foram carregados.")
     if (saveTimer.current !== null) {
       window.clearTimeout(saveTimer.current)

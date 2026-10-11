@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react"
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { publicAsset } from "../../utils/assets"
 
 type AuthView = "login" | "signup" | "recovery" | "update-password"
 
@@ -8,6 +9,7 @@ type AuthScreenProps = {
   configurationError: string | null
   recovery: boolean
   sessionError: string
+  onPreview?: () => void
 }
 
 function getErrorMessage(error: unknown): string {
@@ -21,6 +23,7 @@ export function AuthScreen({
   configurationError,
   recovery,
   sessionError,
+  onPreview,
 }: AuthScreenProps) {
   const [view, setView] = useState<AuthView>(
     recovery ? "update-password" : "login",
@@ -59,7 +62,9 @@ export function AuthScreen({
         const { data, error: signupError } = await client.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+          },
         })
         if (signupError) throw signupError
         if (!data.session) {
@@ -70,7 +75,7 @@ export function AuthScreen({
       } else if (view === "recovery") {
         const { error: recoveryError } =
           await client.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin,
+            redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
           })
         if (recoveryError) throw recoveryError
         setMessage(
@@ -106,7 +111,11 @@ export function AuthScreen({
       <section className="auth-card" aria-labelledby="auth-heading">
         <div className="auth-brand">
           <span className="brand-symbol">
-            <img className="icon" src="/assets/f3466.svg" alt="" />
+            <img
+              className="icon"
+              src={publicAsset("/assets/f3466.svg")}
+              alt=""
+            />
           </span>
           <span>
             <strong>UGC AI YOHS</strong>
@@ -124,9 +133,20 @@ export function AuthScreen({
             <strong>Configuração necessária</strong>
             <p>{configurationError}</p>
             <p>
-              Copie <code>.env.example</code> para <code>.env.local</code>,
-              preencha as duas variáveis do Supabase e reinicie o servidor.
+              Localmente, copie <code>.env.example</code> para{" "}
+              <code>.env.local</code> e reinicie o servidor. No GitHub Pages,
+              adicione as variáveis nas configurações do repositório e execute
+              uma nova publicação.
             </p>
+            {onPreview && (
+              <button
+                className="button button-secondary auth-preview-button"
+                type="button"
+                onClick={onPreview}
+              >
+                Abrir preview visual
+              </button>
+            )}
           </div>
         )}
         {sessionError && (

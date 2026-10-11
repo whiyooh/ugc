@@ -1,4 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from "react"
+import { publicAsset } from "../utils/assets"
 
 export type IconProps = {
   src: string
@@ -6,7 +7,7 @@ export type IconProps = {
 }
 
 export function Icon({ src, alt = "" }: IconProps) {
-  return <img className="icon" src={src} alt={alt} />
+  return <img className="icon" src={publicAsset(src)} alt={alt} />
 }
 
 export function Button({

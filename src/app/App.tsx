@@ -7,6 +7,7 @@ import {
   useSignedWorkspaceImages,
   useWorkspaceData,
 } from "../data/useWorkspaceData"
+import { previewWorkspace } from "../data/previewWorkspace"
 import type { AppData, Status } from "../types/domain"
 import { uid } from "../utils/id"
 import { AuthScreen } from "../features/auth/AuthScreen"
@@ -51,15 +52,29 @@ export default function App() {
 
 function AppGate() {
   const auth = useAuth()
+  const [previewMode, setPreviewMode] = useState(false)
 
   if (auth.loading) return <LoadingScreen message="Verificando sua sessão..." />
   if (auth.configurationError) {
+    if (previewMode) {
+      return (
+        <Workspace
+          key="visual-preview"
+          client={null}
+          userId=""
+          email="Pré-visualização"
+          previewData={previewWorkspace}
+          onExitPreview={() => setPreviewMode(false)}
+        />
+      )
+    }
     return (
       <AuthScreen
         client={null}
         configurationError={auth.configurationError}
         recovery={false}
         sessionError=""
+        onPreview={() => setPreviewMode(true)}
       />
     )
   }
@@ -103,10 +118,14 @@ function Workspace({
   client,
   userId,
   email,
+  previewData,
+  onExitPreview,
 }: {
-  client: SupabaseClient
+  client: SupabaseClient | null
   userId: string
   email: string
+  previewData?: AppData
+  onExitPreview?: () => void
 }) {
   const {
     data,
@@ -119,7 +138,7 @@ function Workspace({
     retryLoad,
     retrySave,
     flushSave,
-  } = useWorkspaceData(client, userId)
+  } = useWorkspaceData(client, userId, previewData)
   const { resolveImage, imageError } = useSignedWorkspaceImages(
     client,
     userId,
@@ -202,7 +221,7 @@ function Workspace({
     const collection = modal.collection
     const old = modal.item
     const image = files.image
-    if (image) {
+    if (image && client) {
       const safeName =
         image.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-100) || "image"
       const imagePath = `${userId}/${collection}/${uid()}-${safeName}`
@@ -220,6 +239,8 @@ function Workspace({
         )
       }
       values.image = imagePath
+    } else if (image) {
+      values.image = URL.createObjectURL(image)
     } else if (typeof old?.image === "string") {
       values.image = old.image
     } else if (
@@ -344,6 +365,10 @@ function Workspace({
     setPage("videos")
   }
   const logout = async () => {
+    if (!client) {
+      onExitPreview?.()
+      return
+    }
     setLoggingOut(true)
     setLogoutError("")
     try {
@@ -503,6 +528,7 @@ function Workspace({
         setPage={setPage}
         open={menu}
         close={() => setMenu(false)}
+        preview={Boolean(previewData)}
       />
       {menu && (
         <button
@@ -524,8 +550,18 @@ function Workspace({
           onLogout={() => void logout()}
           onRetrySave={retrySave}
           loggingOut={loggingOut}
+          preview={Boolean(previewData)}
         />
         <main>
+          {previewData && (
+            <div className="preview-notice" role="status">
+              <strong>Preview visual · dados demonstrativos</strong>
+              <span>
+                Alterações aparecem apenas nesta sessão e não são salvas na
+                nuvem.
+              </span>
+            </div>
+          )}
           {saveError && (
             <div className="storage-warning" role="alert">
               <strong>Alterações ainda não confirmadas na nuvem.</strong>{" "}
@@ -540,7 +576,11 @@ function Workspace({
           {content}
           <footer>
             UGC AI CREATOR HUB&nbsp;&nbsp;•&nbsp;&nbsp;Organize. Crie. Aprenda.
-            <span>Dados privados vinculados à sua conta</span>
+            <span>
+              {previewData
+                ? "Demonstração visual · sem persistência"
+                : "Dados privados vinculados à sua conta"}
+            </span>
           </footer>
         </main>
       </div>

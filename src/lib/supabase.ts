@@ -17,11 +17,11 @@ function isAllowedSupabaseUrl(value: string): boolean {
 }
 
 export const supabaseConfigurationError = !url
-  ? "Configure VITE_SUPABASE_URL no arquivo .env.local."
+  ? "A variável VITE_SUPABASE_URL não foi definida. No preview local, preencha .env.local; no GitHub Pages, configure-a em Settings > Secrets and variables > Actions > Variables e publique novamente."
   : !isAllowedSupabaseUrl(url)
-    ? "VITE_SUPABASE_URL deve usar HTTPS (HTTP só é permitido em localhost)."
+    ? "VITE_SUPABASE_URL precisa ser uma URL válida usando HTTPS (HTTP só é permitido em localhost)."
     : !anonKey
-      ? "Configure VITE_SUPABASE_ANON_KEY no arquivo .env.local."
+      ? "A variável VITE_SUPABASE_ANON_KEY não foi definida. Use a chave pública anon/publishable do Supabase; configure .env.local localmente ou uma Actions Variable no GitHub Pages."
       : null
 
 export const supabase =

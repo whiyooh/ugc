@@ -3,6 +3,7 @@ import { statusOrder } from "../../data/status"
 import { Button, Panel, Tag } from "../../components/ui"
 import { PageTitle } from "../../components/layout"
 import type { Page } from "../../app/navigation"
+import { publicAsset } from "../../utils/assets"
 
 export function Dashboard({
   data,
@@ -49,7 +50,7 @@ export function Dashboard({
           </div>
         </div>
         <img
-          src="/assets/b42d7.png"
+          src={publicAsset("/assets/b42d7.png")}
           alt="Composição editorial de produtos em tons neutros e lilás"
         />
       </section>
