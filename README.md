@@ -58,6 +58,8 @@ Aplicação web em React e TypeScript para organizar produtos, criadoras IA, cop
 
    Para visualizar a interface sem criar uma conta, use **Abrir preview visual** na tela de entrada ou configuração. Esse modo usa apenas conteúdo demonstrativo em memória, não autentica, não acessa a nuvem e descarta as alterações ao sair ou recarregar.
 
+   Os links de confirmação e recuperação retornam para a origem em que o formulário foi enviado. Se um link expirar, abra a aplicação, informe o e-mail na tela de entrada e use **Enviar novo link de confirmação**. Em **Supabase → Authentication → URL Configuration**, mantenha o Site URL apontando para a URL principal publicada e adicione as origens locais realmente usadas, por exemplo `http://localhost:3000/**`, `http://localhost:5173/**` e `http://127.0.0.1:5173/**`, às Redirect URLs. A URL precisa corresponder à porta em que o app está rodando. No template de confirmação de e-mail, use `{{ .ConfirmationURL }}` no link em vez de codificar `localhost` diretamente.
+
 ## Comandos
 
 ```bash

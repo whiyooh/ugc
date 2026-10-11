@@ -15,7 +15,42 @@ type AuthContextValue = {
   user: User | null
   loading: boolean
   error: string
+  callbackError: string | null
   passwordRecovery: boolean
+}
+
+function getAuthCallbackError(): string | null {
+  if (typeof window === "undefined") return null
+
+  const hashParams = new URLSearchParams(window.location.hash.slice(1))
+  const queryParams = new URLSearchParams(window.location.search)
+  const errorCode =
+    hashParams.get("error_code") ?? queryParams.get("error_code")
+  const error = hashParams.get("error") ?? queryParams.get("error")
+
+  if (!error && !errorCode) return null
+
+  const description =
+    hashParams.get("error_description") ?? queryParams.get("error_description")
+  const message =
+    errorCode === "otp_expired"
+      ? "O link de confirmação é inválido ou expirou. Informe seu e-mail abaixo para solicitar um novo."
+      : description
+        ? `Não foi possível concluir a confirmação: ${description}`
+        : "Não foi possível concluir a confirmação. Solicite um novo link e tente novamente."
+
+  const url = new URL(window.location.href)
+  url.hash = ""
+  for (const key of ["error", "error_code", "error_description", "sb"]) {
+    url.searchParams.delete(key)
+  }
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${url.pathname}${url.search}`,
+  )
+
+  return message
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -24,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(Boolean(supabase))
   const [error, setError] = useState("")
+  const [callbackError] = useState(getAuthCallbackError)
   const [passwordRecovery, setPasswordRecovery] = useState(false)
 
   useEffect(() => {
@@ -89,9 +125,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       error,
+      callbackError,
       passwordRecovery,
     }),
-    [user, loading, error, passwordRecovery],
+    [user, loading, error, callbackError, passwordRecovery],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

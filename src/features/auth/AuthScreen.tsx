@@ -9,6 +9,7 @@ type AuthScreenProps = {
   configurationError: string | null
   recovery: boolean
   sessionError: string
+  callbackError?: string | null
   onPreview?: () => void
 }
 
@@ -18,11 +19,22 @@ function getErrorMessage(error: unknown): string {
     : "Não foi possível concluir a operação. Tente novamente."
 }
 
+function isEmailNotConfirmed(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false
+  if ("code" in error && error.code === "email_not_confirmed") return true
+  return (
+    "message" in error &&
+    typeof error.message === "string" &&
+    error.message.toLowerCase().includes("email not confirmed")
+  )
+}
+
 export function AuthScreen({
   client,
   configurationError,
   recovery,
   sessionError,
+  callbackError = null,
   onPreview,
 }: AuthScreenProps) {
   const [view, setView] = useState<AuthView>(
@@ -31,6 +43,9 @@ export function AuthScreen({
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [busy, setBusy] = useState(false)
+  const [resendingConfirmation, setResendingConfirmation] = useState(false)
+  const [confirmationResent, setConfirmationResent] = useState(false)
+  const [confirmationRequired, setConfirmationRequired] = useState(false)
   const [error, setError] = useState("")
   const [message, setMessage] = useState("")
 
@@ -39,6 +54,8 @@ export function AuthScreen({
     setError("")
     setMessage("")
     setPassword("")
+    setConfirmationRequired(false)
+    setConfirmationResent(false)
   }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -57,7 +74,16 @@ export function AuthScreen({
           email,
           password,
         })
-        if (loginError) throw loginError
+        if (loginError) {
+          if (isEmailNotConfirmed(loginError)) {
+            setConfirmationRequired(true)
+            setError(
+              "Este e-mail ainda não foi confirmado. Solicite um novo link abaixo.",
+            )
+            return
+          }
+          throw loginError
+        }
       } else if (view === "signup") {
         const { data, error: signupError } = await client.auth.signUp({
           email,
@@ -94,6 +120,39 @@ export function AuthScreen({
       setError(getErrorMessage(requestError))
     } finally {
       setBusy(false)
+    }
+  }
+
+  const resendConfirmation = async () => {
+    setError("")
+    setMessage("")
+    if (!client) {
+      setError(configurationError ?? "O Supabase não está configurado.")
+      return
+    }
+    if (!email.trim()) {
+      setError("Informe seu e-mail para solicitar um novo link.")
+      return
+    }
+
+    setResendingConfirmation(true)
+    try {
+      const { error: resendError } = await client.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+        },
+      })
+      if (resendError) throw resendError
+      setConfirmationResent(true)
+      setMessage(
+        "Se a conta ainda precisar de confirmação, enviaremos um novo link para esse endereço.",
+      )
+    } catch (requestError) {
+      setError(getErrorMessage(requestError))
+    } finally {
+      setResendingConfirmation(false)
     }
   }
 
@@ -155,6 +214,26 @@ export function AuthScreen({
             <button type="button" onClick={() => window.location.reload()}>
               Verificar sessão novamente
             </button>
+          </div>
+        )}
+        {(callbackError || confirmationRequired) && (
+          <div className="auth-error" role="alert">
+            <p>
+              {callbackError ??
+                "Este e-mail ainda não foi confirmado. Envie um novo link para liberar o acesso."}
+            </p>
+            {!confirmationResent && client && (
+              <button
+                className="button button-secondary auth-preview-button"
+                type="button"
+                disabled={resendingConfirmation}
+                onClick={() => void resendConfirmation()}
+              >
+                {resendingConfirmation
+                  ? "Enviando..."
+                  : "Enviar novo link de confirmação"}
+              </button>
+            )}
           </div>
         )}
 

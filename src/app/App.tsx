@@ -97,6 +97,7 @@ function AppGate() {
         configurationError={null}
         recovery={false}
         sessionError={auth.error}
+        callbackError={auth.callbackError}
         onPreview={() => setPreviewMode(true)}
       />
     )
