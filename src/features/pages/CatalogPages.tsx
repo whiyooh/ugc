@@ -40,7 +40,15 @@ export function Products({
         antes de publicar.
       </Notice>
       <div className="filter-row">
-        {["Todos", "Shopee", "TikTok Shop", "Kwai", "SHEIN"].map((item) => (
+        {[
+          "Todos",
+          "Shopee",
+          "TikTok Shop",
+          "Kwai",
+          "SHEIN",
+          "Mercado Livre",
+          "Amazon",
+        ].map((item) => (
           <button
             className={platform === item ? "filter-active" : ""}
             onClick={() => setPlatform(item)}
