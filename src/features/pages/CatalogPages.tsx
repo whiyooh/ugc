@@ -35,10 +35,6 @@ export function Products({
         subtitle="Um catálogo organizado para transformar benefícios em cenas de UGC."
         action={<Button onClick={add}>＋&nbsp; Adicionar produto</Button>}
       />
-      <Notice>
-        Todos os produtos são fictícios. Substitua por informações verificadas
-        antes de publicar.
-      </Notice>
       <div className="filter-row">
         {[
           "Todos",
