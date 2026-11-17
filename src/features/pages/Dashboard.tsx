@@ -23,7 +23,9 @@ export function Dashboard({
         title="Seu próximo vídeo começa aqui."
         subtitle="Uma visão clara do que criar, produzir e colocar no mundo."
         action={
-          <Button onClick={createCampaign}>＋&nbsp; Nova campanha</Button>
+          <Button onClick={createCampaign}>
+            ＋&nbsp; Nova campanha
+          </Button>
         }
       />
       <section className="hero">

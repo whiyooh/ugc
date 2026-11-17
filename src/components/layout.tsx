@@ -1,12 +1,13 @@
 import type { ReactNode } from "react"
 import { Icon, Tag } from "./ui"
-import { icons, pageNames, type Page } from "../app/navigation"
+import { icons, isLockedScreen, pageNames, type Page } from "../app/navigation"
 
 export function Header({
   page,
   search,
   setSearch,
   onMenu,
+  onOpenPlans,
   email,
   saving,
   lastSavedAt,
@@ -20,6 +21,7 @@ export function Header({
   search: string
   setSearch: (value: string) => void
   onMenu: () => void
+  onOpenPlans: () => void
   email: string
   saving: boolean
   lastSavedAt: string | null
@@ -65,6 +67,9 @@ export function Header({
         <span className="user-email" title={email}>
           {email}
         </span>
+        <button className="link-button" onClick={onOpenPlans}>
+          Meu plano
+        </button>
         <button
           className="logout-button"
           onClick={onLogout}
@@ -83,12 +88,16 @@ export function Sidebar({
   open,
   close,
   preview,
+  hasPaidPlan,
+  onLockedScreen,
 }: {
   page: Page
   setPage: (page: Page) => void
   open: boolean
   close: () => void
   preview: boolean
+  hasPaidPlan: boolean
+  onLockedScreen: (page: Page) => void
 }) {
   const navigate = (next: Page) => {
     setPage(next)
@@ -120,16 +129,33 @@ export function Sidebar({
           "feedbacks",
           "drafts",
           "template",
-        ] as Page[]).map((item) => (
-          <button
-            key={item}
-            className={`nav-item ${page === item ? "active" : ""}`}
-            onClick={() => navigate(item)}
-          >
-            <Icon src={icons[item]} />
-            <span>{pageNames[item]}</span>
-          </button>
-        ))}
+        ] as Page[]).map((item) => {
+          const locked = isLockedScreen(item, hasPaidPlan)
+          return (
+            <button
+              key={item}
+              className={`nav-item ${page === item ? "active" : ""} ${
+                locked ? "nav-item-locked" : ""
+              }`}
+              onClick={() => (locked ? onLockedScreen(item) : navigate(item))}
+              aria-haspopup={locked ? "dialog" : undefined}
+              aria-label={
+                locked
+                  ? `${pageNames[item]}, bloqueado neste plano`
+                  : pageNames[item]
+              }
+              title={locked ? "Ver planos para desbloquear" : undefined}
+            >
+              <Icon src={icons[item]} />
+              <span>{pageNames[item]}</span>
+              {locked && (
+                <span className="nav-lock" aria-label="Plano superior">
+                  🔒
+                </span>
+              )}
+            </button>
+          )
+        })}
       </nav>
       <div className="side-note">
         <Tag tone="purple">

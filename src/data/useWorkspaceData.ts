@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { AppData } from "../types/domain"
-import { WORKSPACE_IMAGE_BUCKET } from "../lib/supabase"
 import {
   createEmptyWorkspace,
   loadWorkspace,
   saveWorkspace,
+  signWorkspaceImages,
 } from "./workspaceRepository"
 import { publicAsset } from "../utils/assets"
+import { PlanUpgradeRequiredError } from "../plans/authorization"
 
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
@@ -64,28 +65,10 @@ export function useSignedWorkspaceImages(
     setError("")
     if (!client || paths.length === 0) return
 
-    void client.storage
-      .from(WORKSPACE_IMAGE_BUCKET)
-      .createSignedUrls(paths, 60 * 60)
-      .then(({ data: signedUrls, error: signingError }) => {
+    void signWorkspaceImages(client, paths)
+      .then((signedImages) => {
         if (!active) return
-        if (signingError) {
-          setError(
-            `Não foi possível carregar as imagens privadas: ${signingError.message}`,
-          )
-          return
-        }
-        const failedPath = signedUrls?.find((entry) => entry.error)?.path
-        if (failedPath) {
-          setError("Uma ou mais imagens privadas não puderam ser abertas.")
-        }
-        setSignedImages(
-          Object.fromEntries(
-            (signedUrls ?? [])
-              .filter((entry) => entry.signedUrl)
-              .map((entry) => [entry.path, entry.signedUrl]),
-          ),
-        )
+        setSignedImages(signedImages)
       })
       .catch((signingError: unknown) => {
         if (active) {
@@ -127,6 +110,8 @@ export function useWorkspaceData(
   const [ready, setReady] = useState(false)
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [saveAttempt, setSaveAttempt] = useState(0)
+  const [upgradeRequiredPlan, setUpgradeRequiredPlan] =
+    useState<PlanUpgradeRequiredError["requiredPlan"] | null>(null)
   const saveQueue = useRef<Promise<void>>(Promise.resolve())
   const saveTimer = useRef<number | null>(null)
   const latestData = useRef(data)
@@ -139,10 +124,10 @@ export function useWorkspaceData(
     () => setLoadAttempt((attempt) => attempt + 1),
     [],
   )
-  const retrySave = useCallback(
-    () => setSaveAttempt((attempt) => attempt + 1),
-    [],
-  )
+  const retrySave = useCallback(() => {
+    setUpgradeRequiredPlan(null)
+    setSaveAttempt((attempt) => attempt + 1)
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -160,7 +145,7 @@ export function useWorkspaceData(
     setData(createEmptyWorkspace())
     setLastSavedAt(null)
 
-    void loadWorkspace(client, userId)
+    void loadWorkspace(client)
       .then((workspace) => {
         if (!active) return
         setData(workspace.data)
@@ -193,7 +178,7 @@ export function useWorkspaceData(
     saveTimer.current = window.setTimeout(() => {
       saveTimer.current = null
       const queuedSave = saveQueue.current.then(() =>
-        saveWorkspace(client, userId, snapshot),
+        saveWorkspace(client, snapshot),
       )
       saveQueue.current = queuedSave.then(
         () => undefined,
@@ -205,10 +190,14 @@ export function useWorkspaceData(
           if (!active) return
           setLastSavedAt(savedAt)
           setError("")
+          setUpgradeRequiredPlan(null)
           setSaving(false)
         })
         .catch((saveError: unknown) => {
           if (!active) return
+          if (saveError instanceof PlanUpgradeRequiredError) {
+            setUpgradeRequiredPlan(saveError.requiredPlan)
+          }
           setError(
             `Não foi possível confirmar o salvamento na nuvem: ${errorMessage(saveError)}`,
           )
@@ -236,7 +225,7 @@ export function useWorkspaceData(
     setSaving(true)
     setError("")
     const queuedSave = saveQueue.current.then(() =>
-      saveWorkspace(client, userId, latestData.current),
+      saveWorkspace(client, latestData.current),
     )
     saveQueue.current = queuedSave.then(
       () => undefined,
@@ -246,8 +235,12 @@ export function useWorkspaceData(
     try {
       const savedAt = await queuedSave
       setLastSavedAt(savedAt)
+      setUpgradeRequiredPlan(null)
       return savedAt
     } catch (saveError) {
+      if (saveError instanceof PlanUpgradeRequiredError) {
+        setUpgradeRequiredPlan(saveError.requiredPlan)
+      }
       const message = `Não foi possível confirmar o salvamento na nuvem: ${errorMessage(saveError)}`
       setError(message)
       throw new Error(message)
@@ -274,6 +267,7 @@ export function useWorkspaceData(
     error,
     loadError,
     lastSavedAt,
+    upgradeRequiredPlan,
     retryLoad,
     retrySave,
     flushSave,

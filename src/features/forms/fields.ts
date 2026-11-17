@@ -1,4 +1,5 @@
 import type { Field } from "../../components/ui"
+import { copyTypes } from "../../types/domain"
 import { statusOrder } from "../../data/status"
 
 export const productFields: Field[] = [
@@ -45,7 +46,7 @@ export const copyFields: Field[] = [
     key: "type",
     label: "Tipo",
     type: "select",
-    options: ["Hook", "Roteiro", "CTA", "Legenda"],
+    options: copyTypes,
   },
   { key: "product", label: "Produto", required: true },
   { key: "platform", label: "Plataforma", required: true },
@@ -59,6 +60,11 @@ export const videoFields: Field[] = [
   { key: "creator", label: "Criadora", required: true },
   { key: "status", label: "Etapa", type: "select", options: statusOrder },
   { key: "note", label: "Próxima ação", type: "textarea", required: true },
+  {
+    key: "storyboard",
+    label: "Storyboard e prompts de IA",
+    type: "textarea",
+  },
 ]
 
 export const referenceFields: Field[] = [

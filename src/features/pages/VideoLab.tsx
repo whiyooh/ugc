@@ -3,6 +3,7 @@ import { statusOrder } from "../../data/status"
 import { Button, Tag } from "../../components/ui"
 import { PageTitle } from "../../components/layout"
 import { videoFields } from "../forms/fields"
+import { usePlan } from "../../plans/PlanProvider"
 
 export function Videos({
   items,
@@ -21,6 +22,7 @@ export function Videos({
   remove: (id: string) => void
   resolveImage: (image: string) => string
 }) {
+  const plan = usePlan()
   const list = items.filter(
     (video) =>
       !search ||
@@ -32,7 +34,9 @@ export function Videos({
         area="05"
         title="Da ideia ao último take."
         subtitle="Acompanhe o fluxo e transforme o roteiro em um storyboard visual completo."
-        action={<Button onClick={add}>＋&nbsp; Novo vídeo</Button>}
+        action={
+          <Button onClick={add}>＋&nbsp; Novo vídeo</Button>
+        }
       />
       <div className="section-head">
         <div>
@@ -72,6 +76,21 @@ export function Videos({
                     <hr />
                     <strong>Próxima ação</strong>
                     <p>{video.note}</p>
+                    {plan.can("videoStoryboardAi") && video.storyboard && (
+                      <div className="storyboard-preview">
+                        <strong>Storyboard / prompts</strong>
+                        <p>{video.storyboard}</p>
+                      </div>
+                    )}
+                    {!plan.can("videoStoryboardAi") && (
+                      <button
+                        type="button"
+                        className="storyboard-upgrade"
+                        onClick={() => plan.openUpgrade("videoStoryboardAi")}
+                      >
+                        🔒 Storyboard com prompts de IA
+                      </button>
+                    )}
                     <div className="kanban-actions">
                       <button
                         disabled={index === 0}

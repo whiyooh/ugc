@@ -12,6 +12,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "format": "oxfmt src README.md package.json vite.config.ts index.html tsconfig.json .github/workflows/deploy.yml",
     "format:check": "oxfmt --check src README.md package.json vite.config.ts index.html tsconfig.json .github/workflows/deploy.yml"
@@ -30,6 +31,7 @@
     "oxfmt": "^0.2.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.0",
-    "vite": "^8.0.5"
+    "vite": "^8.0.5",
+    "vitest": "^5.1.0"
   }
 }

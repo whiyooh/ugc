@@ -9,6 +9,7 @@ export function Products({
   items,
   search,
   add,
+  usage,
   edit,
   remove,
   resolveImage,
@@ -16,6 +17,7 @@ export function Products({
   items: Product[]
   search: string
   add: () => void
+  usage: string
   edit: (item: Product) => void
   remove: (id: string) => void
   resolveImage: (image: string) => string
@@ -33,7 +35,12 @@ export function Products({
         area="02"
         title="Produtos com potencial de história."
         subtitle="Um catálogo organizado para transformar benefícios em cenas de UGC."
-        action={<Button onClick={add}>＋&nbsp; Adicionar produto</Button>}
+        action={
+          <Button onClick={add}>
+            ＋&nbsp; Adicionar produto{" "}
+            <span className="usage-count">{usage}</span>
+          </Button>
+        }
       />
       <div className="filter-row">
         {[
@@ -119,6 +126,7 @@ export function Creators({
   search,
   copyPrompt,
   add,
+  usage,
   edit,
   remove,
   resolveImage,
@@ -127,6 +135,7 @@ export function Creators({
   search: string
   copyPrompt: (prompt: string) => void
   add: () => void
+  usage: string
   edit: (item: Creator) => void
   remove: (id: string) => void
   resolveImage: (image: string) => string
@@ -142,7 +151,11 @@ export function Creators({
         area="03"
         title="Uma identidade para cada história."
         subtitle="Galeria de criadoras fictícias adultas, com direção visual e voz consistentes."
-        action={<Button onClick={add}>＋&nbsp; Novo perfil</Button>}
+        action={
+          <Button onClick={add}>
+            ＋&nbsp; Novo perfil <span className="usage-count">{usage}</span>
+          </Button>
+        }
       />
       <Notice>
         Todos os perfis são fictícios e os retratos são ilustrativos. Não use

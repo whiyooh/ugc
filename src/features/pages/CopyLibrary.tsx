@@ -1,13 +1,16 @@
 import { useState } from "react"
-import type { Copy } from "../../types/domain"
+import { copyTypes, type Copy } from "../../types/domain"
 import { Button, Notice, Tag } from "../../components/ui"
 import { PageTitle } from "../../components/layout"
 import { copyFields } from "../forms/fields"
+import { copyFeatureByType } from "../../plans/config"
 
 export function Copies({
   items,
   search,
   copyContent,
+  canAdvanced,
+  onUpgrade,
   add,
   edit,
   remove,
@@ -15,12 +18,17 @@ export function Copies({
   items: Copy[]
   search: string
   copyContent: (content: string) => void
+  canAdvanced: boolean
+  onUpgrade: () => void
   add: () => void
   edit: (item: Copy) => void
   remove: (id: string) => void
 }) {
   const [type, setType] = useState("Todos")
-  const list = items.filter(
+  const allowedItems = canAdvanced
+    ? items
+    : items.filter((item) => copyFeatureByType[item.type] === "copyHooksCtas")
+  const list = allowedItems.filter(
     (item) =>
       (!search ||
         JSON.stringify(item).toLowerCase().includes(search.toLowerCase())) &&
@@ -39,15 +47,28 @@ export function Copies({
         plataforma antes da veiculação.
       </Notice>
       <div className="filter-row">
-        {["Todos", "Hook", "Roteiro", "CTA", "Legenda"].map((item) => (
-          <button
-            className={type === item ? "filter-active" : ""}
-            onClick={() => setType(item)}
-            key={item}
-          >
-            {item}
-          </button>
-        ))}
+        {(["Todos", ...copyTypes] as const).map((item) => {
+          const locked =
+            item !== "Todos" &&
+            !canAdvanced &&
+            copyFeatureByType[item] === "copyAdvanced"
+          return (
+            <button
+              className={`${type === item ? "filter-active" : ""} ${
+                locked ? "filter-locked" : ""
+              }`}
+              onClick={() => (locked ? onUpgrade() : setType(item))}
+              key={item}
+              aria-haspopup={locked ? "dialog" : undefined}
+              aria-label={
+                locked ? `${item}, disponível em plano superior` : item
+              }
+            >
+              {item}
+              {locked && <span aria-label="Plano superior"> 🔒</span>}
+            </button>
+          )
+        })}
       </div>
       <div className="copy-grid">
         {list.map((copy) => (

@@ -23,10 +23,21 @@ export type Creator = {
   image: string
 }
 
+export const copyTypes = [
+  "Hook",
+  "Roteiro",
+  "CTA",
+  "Legenda",
+  "Unboxing",
+  "Variação A/B",
+] as const
+
+export type CopyType = typeof copyTypes[number]
+
 export type Copy = {
   id: string
   title: string
-  type: "Hook" | "Roteiro" | "CTA" | "Legenda"
+  type: CopyType
   product: string
   content: string
   platform: string
@@ -40,6 +51,7 @@ export type Video = {
   status: Status
   note: string
   image: string
+  storyboard?: string
 }
 
 export type Reference = {
@@ -56,6 +68,9 @@ export type Feedback = {
   comment: string
   adjustment: string
   status: "Pendente" | "Concluído"
+  views?: number
+  clicks?: number
+  sales?: number
 }
 
 export type Draft = {

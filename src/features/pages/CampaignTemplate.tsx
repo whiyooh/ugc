@@ -36,7 +36,9 @@ export function Template({
         area="09"
         title="Uma campanha. Tudo conectado."
         subtitle="Um modelo montado com os registros da sua conta."
-        action={<Button onClick={duplicate}>Duplicar campanha</Button>}
+        action={
+          <Button onClick={duplicate}>Duplicar campanha</Button>
+        }
       />
       <div className="template-steps">
         <span>

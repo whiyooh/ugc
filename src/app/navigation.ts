@@ -1,8 +1,45 @@
 import type { AppData } from "../types/domain"
+import type { PlanFeature } from "../plans/config"
 
 export type Page = "dashboard" | "products" | "creators" | "copies" | "videos" | "references" | "feedbacks" | "drafts" | "template"
 
 export type Collection = Exclude<keyof AppData, "completedSteps">
+
+export const lockedScreens = [
+  "references",
+  "feedbacks",
+  "template",
+] as const satisfies readonly Page[]
+
+export function isLockedScreen(page: Page, hasPaidPlan: boolean): boolean {
+  return (
+    !hasPaidPlan && lockedScreens.some((lockedScreen) => lockedScreen === page)
+  )
+}
+
+export const pagePaths: Record<Page, string> = {
+  dashboard: "/",
+  products: "/produtos",
+  creators: "/criadoras",
+  copies: "/copies",
+  videos: "/video-lab",
+  references: "/referencias",
+  feedbacks: "/feedbacks",
+  drafts: "/rascunhos",
+  template: "/template-campanha",
+}
+
+export const pageFeatures: Record<Page, PlanFeature> = {
+  dashboard: "dashboard",
+  products: "products",
+  creators: "creators",
+  copies: "copyHooksCtas",
+  videos: "videoKanban",
+  references: "references",
+  feedbacks: "feedbackManual",
+  drafts: "drafts",
+  template: "campaignTemplate",
+}
 
 export const icons: Record<Page, string> = {
   dashboard: "/assets/66fc7.svg",
