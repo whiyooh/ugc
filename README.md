@@ -87,7 +87,9 @@ de abrir o checkout; crie os preços mensais com esses valores:
 
 1. Crie uma conta Stripe e mantenha o Dashboard em **modo de teste**.
 2. Crie produtos e preços recorrentes mensais em BRL: Plus R$ 19,90, Pro
-   R$ 34,90 e Premium R$ 55,90. Copie os IDs `price_...`.
+   R$ 34,90 e Premium R$ 55,90. Copie os IDs `price_...`; as variáveis
+   `STRIPE_PRICE_PLUS`, `STRIPE_PRICE_PRO` e `STRIPE_PRICE_PREMIUM` devem
+   receber esses IDs, nunca os valores monetários.
 3. Configure o portal do cliente no Dashboard Stripe, incluindo atualização
    de cartão, cancelamento e, se desejar, alteração entre os três preços.
 4. Copie `.env.example` para `.env.local` para desenvolvimento local e

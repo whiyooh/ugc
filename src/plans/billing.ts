@@ -26,6 +26,10 @@ export type StripeSubscription = {
 
 export type BillingStatus = "pending" | "unchanged" | "active" | "past_due" | "canceled" | "expired"
 
+export function isStripePriceId(value: unknown): value is string {
+  return typeof value === "string" && /^price_[A-Za-z0-9_]+$/.test(value)
+}
+
 export function billingStatusForEvent(
   eventType: string,
   subscriptionStatus: string,

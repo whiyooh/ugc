@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2"
+import { isStripePriceId } from "../../../src/plans/billing.ts"
 import { planIds, plans, type PlanId } from "../../../src/plans/config.ts"
 import { StripePaymentProvider } from "../_shared/paymentProvider.ts"
 
@@ -121,6 +122,23 @@ Deno.serve(async (request) => {
       const priceId = configuredPriceIds()[body.plan]
       if (!priceId || !user.email) {
         return jsonResponse({ code: "PLAN_NOT_CONFIGURED" }, 503)
+      }
+      if (!isStripePriceId(priceId)) {
+        console.error(
+          "A configuração do preço Stripe não contém um ID price_.",
+          {
+            plan: body.plan,
+          },
+        )
+        return jsonResponse(
+          {
+            code: "PLAN_NOT_CONFIGURED",
+            message:
+              `Configure STRIPE_PRICE_${body.plan.toUpperCase()} com o ID ` +
+              "price_... do objeto de preço Stripe, não com o valor numérico.",
+          },
+          503,
+        )
       }
 
       const { data: subscription, error } = await admin

@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto"
 import { describe, expect, it } from "vitest"
 import {
   billingStatusForEvent,
+  isStripePriceId,
   paymentGraceExpiry,
   planFromPriceId,
   subscriptionIdFromEvent,
@@ -10,6 +11,13 @@ import {
 } from "./billing"
 
 describe("Stripe billing helpers", () => {
+  it("accepts Stripe Price IDs and rejects literal amounts", () => {
+    expect(isStripePriceId("price_pro_test123")).toBe(true)
+    expect(isStripePriceId("34.90")).toBe(false)
+    expect(isStripePriceId("price_")).toBe(false)
+    expect(isStripePriceId(undefined)).toBe(false)
+  })
+
   it("maps configured Stripe prices to their plans", () => {
     expect(
       planFromPriceId("price_pro_test", {
