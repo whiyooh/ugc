@@ -45,8 +45,10 @@
 .plans-dialog .plans-heading h1 { font-size: clamp(25px, 3vw, 34px); }
 .plans-close { position: absolute; top: 14px; right: 16px; z-index: 1; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--muted); font-size: 22px; cursor: pointer; }
 .nav-item-locked { color: #aaa5b7; }
-.nav-item-locked:hover { color: var(--purple-dark); }
-.nav-lock { margin-left: auto; font-size: 11px; }
+.nav-item-locked .icon { opacity: .72; }
+.nav-item-locked:hover { color: var(--purple-dark); background: #f4f0fc; }
+.nav-lock { display: inline-grid; width: 22px; height: 22px; flex: 0 0 22px; margin-left: auto; place-items: center; border: 1px solid #ddd5ef; border-radius: 7px; background: #f3effa; color: #6d4bb7; }
+.nav-lock-icon { width: 12px; height: 12px; fill: #fff; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
 .usage-count { border-radius: 6px; background: rgba(255,255,255,.2); padding: 3px 6px; font-size: 10px; font-weight: 600; white-space: nowrap; }
 .plan-locked { display: flex; align-items: center; gap: 14px; margin: 12px 0; border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 16px; }
 .plan-locked > span { font-size: 20px; }

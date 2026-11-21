@@ -2,6 +2,22 @@ import type { ReactNode } from "react"
 import { Icon, Tag } from "./ui"
 import { icons, isLockedScreen, pageNames, type Page } from "../app/navigation"
 
+function LockIcon() {
+  return (
+    <svg
+      className="nav-lock-icon"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+      <rect x="3.25" y="7" width="9.5" height="7" rx="2" />
+      <circle cx="8" cy="10.25" r=".75" />
+      <path d="M8 11v1" />
+    </svg>
+  )
+}
+
 export function Header({
   page,
   search,
@@ -150,7 +166,7 @@ export function Sidebar({
               <span>{pageNames[item]}</span>
               {locked && (
                 <span className="nav-lock" aria-label="Plano superior">
-                  🔒
+                  <LockIcon />
                 </span>
               )}
             </button>
