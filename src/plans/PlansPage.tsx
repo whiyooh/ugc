@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Button, Tag } from "../components/ui"
 import {
   formatPlanPrice,
@@ -42,6 +42,7 @@ export function PlansPage({
   const [error, setError] = useState("")
   const [busyPlan, setBusyPlan] = useState<PlanId | null>(null)
   const [busyAction, setBusyAction] = useState(false)
+  const actionInProgress = useRef(false)
   const minimumPlan = requiredFeature
     ? minimumPlanForFeature(requiredFeature)
     : null
@@ -53,6 +54,8 @@ export function PlansPage({
       setError("Entre na sua conta para iniciar uma assinatura.")
       return
     }
+    if (actionInProgress.current) return
+    actionInProgress.current = true
     setBusyPlan(planId)
     try {
       await onSubscribe(planId)
@@ -64,6 +67,7 @@ export function PlansPage({
       )
     } finally {
       setBusyPlan(null)
+      actionInProgress.current = false
     }
   }
 
@@ -74,6 +78,8 @@ export function PlansPage({
       setError("Entre na sua conta para gerenciar uma assinatura.")
       return
     }
+    if (actionInProgress.current) return
+    actionInProgress.current = true
     setBusyAction(true)
     try {
       await onManageSubscription()
@@ -85,11 +91,14 @@ export function PlansPage({
       )
     } finally {
       setBusyAction(false)
+      actionInProgress.current = false
     }
   }
 
   const checkStatus = async () => {
     if (!onCheckStatus) return
+    if (actionInProgress.current) return
+    actionInProgress.current = true
     setError("")
     setBusyAction(true)
     try {
@@ -102,6 +111,7 @@ export function PlansPage({
       )
     } finally {
       setBusyAction(false)
+      actionInProgress.current = false
     }
   }
 
